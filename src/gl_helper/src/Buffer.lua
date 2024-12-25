@@ -29,11 +29,11 @@ local DrawType = {
 --- @param data selene.Data
 --- @param draw gl.DrawType
 function Buffer:data(data, draw)
-    gl.buffer_data(self.__target, data.size, data.root, gl[draw])
+    gl.buffer_data(self.__target, data:size(), data:root(), gl[draw])
 end
 
 function Buffer:subData(start, data)
-    gl.buffer_subdata(self.__target, start, data.size, data.root)
+    gl.buffer_subdata(self.__target, start, data:size(), data:root())
 end
 
 return Buffer

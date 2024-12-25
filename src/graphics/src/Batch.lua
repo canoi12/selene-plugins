@@ -18,7 +18,7 @@ function Batch.create(size, vertexSize)
     b.vertexSize = vertexSize or 32 -- 8 floats (8 * 4 = 32 bytes)
     b.size = size * b.vertexSize
     b.buffer = gl.gen_buffers(1)
-    b.data = selene.Data.create(b.size)
+    b.data = selene.create_data(b.size)
 
     gl.bind_buffer(gl.ARRAY_BUFFER, b.buffer)
     gl.buffer_data(gl.ARRAY_BUFFER, b.size, nil, gl.DYNAMIC_DRAW)
@@ -30,12 +30,12 @@ end
 function Batch:push(x, y, r, g, b, a, u, v)
     if self.offset + self.vertexSize >= self.size then
         self.size = self.size * 2
-        self.data = selene.Data.create(self.size, self.data)
+        self.data = selene.create_data(self.size, self.data)
         gl.bind_buffer(gl.ARRAY_BUFFER, self.buffer)
         gl.buffer_data(gl.ARRAY_BUFFER, self.size, nil, gl.DYNAMIC_DRAW)
         gl.bind_buffer(gl.ARRAY_BUFFER)
     end
-    self.data:writeFloats(self.offset, x, y, r, g, b, a, u, v)
+    self.data:write_floats(self.offset, x, y, r, g, b, a, u, v)
     self.offset = self.offset + self.vertexSize
 end
 

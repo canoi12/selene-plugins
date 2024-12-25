@@ -72,7 +72,7 @@ function graphics.create(options)
     gl.bind_vertex_array()
     gl.bind_buffer(gl.ARRAY_BUFFER)
 
-    ctx.vert_data = selene.Data.create(1000 * 4 * 8 * 6)
+    ctx.vert_data = selene.create_data(1000 * 4 * 8 * 6)
 
     return setmetatable(ctx, Context)
 end

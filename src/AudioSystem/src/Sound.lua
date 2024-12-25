@@ -5,8 +5,6 @@
 --- @field size integer
 local Sound = {}
 
-local sdl = require('selSDL')
-
 local sound_mt = {}
 sound_mt.__index = Sound
 sound_mt.__gc = function (s)
@@ -16,29 +14,29 @@ end
 function Sound.create(sys, decoder)
     local sound = {}
 
-    local read = decoder:getChunk(sys.auxData, sys.spec.samples)
+    local read = decoder:get_chunk(sys.auxData, sys.spec.samples)
     print(read)
     if read < 0 then
         error('Decoder error')
     end
     local spec = {
         format = sdl.AUDIO_S16SYS,
-        channels = decoder:getChannels(),
-        sampleRate = decoder:getSampleRate()
+        channels = decoder:get_channels(),
+        sampleRate = decoder:get_sample_rate()
     }
-    local stream = sdl.AudioStream.create(spec, sys.spec)
+    local stream = sdl.new_audio_stream(spec, sys.spec)
     while read ~= 0 do
-        local res = stream:put(sys.auxData:getPointer(), read * 4)
+        local res = stream:put(sys.auxData:root(), read * 4)
         if res < 0 then
-            error('AudioStream put error: ' .. sdl.getError())
+            error('AudioStream put error: ' .. sdl.get_error())
         end
-        read = decoder:getChunk(sys.auxData, sys.spec.samples)
+        read = decoder:get_chunk(sys.auxData, sys.spec.samples)
     end
     local size = stream:available()
-    local data = selene.Data.create(size)
+    local data = selene.create_data(size)
     read = stream:get(data)
     if read < 0 then
-       error('AudioStream read error: ' .. sdl.getError()) 
+       error('AudioStream read error: ' .. sdl.get_error()) 
     end
     stream:free()
 
@@ -47,7 +45,7 @@ function Sound.create(sys, decoder)
 end
 
 function Sound.load(sys, path)
-    local decoder = selene.audio.Decoder.load(path)
+    local decoder = audio.load_decoder(path)
     return Sound.create(sys, decoder)
 end
 

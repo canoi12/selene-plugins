@@ -3,7 +3,7 @@ Image.__index = Image
 
 function Image.load(path)
     local t = {}
-    t.data = selene.ImageData.load(path)
+    t.data = image.from_file(path)
     t.handle = gl.gen_textures(1)
     t.width = t.data.width
     t.height = t.data.height

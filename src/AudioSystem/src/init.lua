@@ -1,5 +1,4 @@
 --- @type selene.sdl2
-local sdl = require('selSDL')
 local SoundInstance = require('AudioSystem.SoundInstance')
 --- @class plugins.audio.AudioSystem
 --- @field music Music | nil
@@ -27,28 +26,24 @@ AudioSystem.SoundInstance = require('AudioSystem.SoundInstance')
 --- @return plugins.audio.AudioSystem
 function AudioSystem.create(options)
     options = options or def_options
-    local num = sdl.AudioDeviceID.getCount(false)
-    if num <= 0 then
-        error('No audio device found')
-    end
     local audio = {}
-    audio.device, audio.spec = sdl.AudioDeviceID.open(nil, false, options)
+    audio.device, audio.spec = sdl.open_audio_device(nil, false, options)
     if not audio.device then
-        local name = sdl.AudioDeviceID.getName(0, false)
-        audio.device, audio.spec = sdl.AudioDeviceID.open(name, false, options)
+        local name = sdl.get_audio_device_name(0, false)
+        audio.device, audio.spec = sdl.open_audio_device(name, false, options)
         if not audio.device then
-            error('Failed to open audio device: ' .. sdl.getError())
+            error('Failed to open audio device: ' .. sdl.get_error())
         end
     end
     audio.music = nil
     audio.sounds = {}
 
-    audio.auxData = selene.Data.create(audio.spec.size)
+    audio.auxData = selene.create_data(audio.spec.size)
     audio.pool = {}
     for _=1,64 do
         table.insert(
             audio.pool,
-            sdl.AudioStream.create(audio.spec, audio.spec)
+            sdl.new_audio_stream(audio.spec, audio.spec)
         )
     end
     audio.device:pause(false)
@@ -67,7 +62,7 @@ function AudioSystem:update()
     if self.music and self.music.playing then
         --- @type Music
         local music = self.music
-        local read = music.decoder:getChunk(self.auxData, self.spec.samples)
+        local read = music.decoder:get_chunk(self.auxData, self.spec.samples)
         if read < 0 then
             error('Error decoding music')
         elseif read == 0 then
@@ -82,9 +77,9 @@ function AudioSystem:update()
             end
         else
             -- print(music)
-            local res = music.stream:put(self.auxData:getPointer(), read * 4)
+            local res = music.stream:put(self.auxData:root(), read * 4)
             if res < 0 then
-                error('Stream put error: ' .. sdl.getError())
+                error('Stream put error: ' .. sdl.get_error())
             end
         end
     end
@@ -100,14 +95,14 @@ function AudioSystem:update()
             end
             local res = 0
             if len ~= 0 then
-                local ptr = sound.data:getPointer(sound.offset)
+                local ptr = sound.data:root(sound.offset)
                 -- print(sound, stream, sound.data, sound.offset, len, size)
                 res = stream:put(ptr, len)
                 -- print('passed')
                 sound.offset = sound.offset + len
             end
             if res < 0 then
-                error('Stream put error: ' .. sdl.getError())
+                error('Stream put error: ' .. sdl.get_error())
             elseif stream:available() == 0 then
                 if sound.loop then sound.offset = 0
                 else table.insert(sounds_to_remove, i) end
@@ -124,7 +119,7 @@ end
 
 --- Play music
 --- @param music Music
-function AudioSystem:playMusic(music)
+function AudioSystem:play_music(music)
     if self.music then
         self.music.stream:unbind(self.device)
     end
@@ -133,14 +128,14 @@ function AudioSystem:playMusic(music)
     self.music.stream:bind(self.device)
 end
 
-function AudioSystem:stopMusic()
+function AudioSystem:stop_music()
     if self.music then
         self.music.stream:unbind(self.device)
         self.music = nil
     end
 end
 
-function AudioSystem:playSound(sound)
+function AudioSystem:play_sound(sound)
     local instance = SoundInstance.create(table.remove(self.pool), sound.data)
     instance.stream:bind(self.device)
     table.insert(self.sounds, instance)
@@ -149,7 +144,7 @@ end
 
 --- Stop a sound instance
 --- @param instance SoundInstance
-function AudioSystem:stopSound(instance)
+function AudioSystem:stop_sound(instance)
     for i=#self.sounds,1,-1 do
         if self.sounds[i] == instance then
             table.remove(self.sounds, i)

@@ -1,5 +1,3 @@
-local sdl = require('selSDL')
-
 --- @class Music
 --- @field playing boolean
 --- @field looping boolean
@@ -24,16 +22,16 @@ function Music.create(sys, decoder)
     m.decoder = decoder
     local spec = {
         format = sdl.AUDIO_S16SYS,
-        channels = m.decoder:getChannels(),
-        sampleRate = m.decoder:getSampleRate()
+        channels = m.decoder:get_channels(),
+        sampleRate = m.decoder:get_sample_rate()
     }
-    m.stream = sdl.AudioStream.create(spec, sys.spec)
-    m.chunk = selene.Data.create(sys.spec.size)
+    m.stream = sdl.new_audio_stream(spec, sys.spec)
+    m.chunk = selene.create_data(sys.spec.size)
     return setmetatable(m, music_mt)
 end
 
 function Music.load(sys, path)
-    local decoder = selene.audio.Decoder.load(path)
+    local decoder = audio.load_decoder(path)
     return Music.create(sys, decoder)
 end
 
