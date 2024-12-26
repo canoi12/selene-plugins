@@ -15,24 +15,22 @@
 #endif
 
 
+SELENE_PLUGINS_API int seleneopen_runner(lua_State* L);
 SELENE_PLUGINS_API int seleneopen_ldtk(lua_State* L);
 SELENE_PLUGINS_API int seleneopen_graphics(lua_State* L);
-SELENE_PLUGINS_API int seleneopen_gl_helper(lua_State* L);
 SELENE_PLUGINS_API int seleneopen_model_loader(lua_State* L);
 SELENE_PLUGINS_API int seleneopen_cube(lua_State* L);
-SELENE_PLUGINS_API int seleneopen_runner(lua_State* L);
-SELENE_PLUGINS_API int seleneopen_json(lua_State* L);
 SELENE_PLUGINS_API int seleneopen_AudioSystem(lua_State* L);
+SELENE_PLUGINS_API int seleneopen_gl_helper(lua_State* L);
 
 const lua_CFunction plugins_list[] = {
+        seleneopen_runner,
         seleneopen_ldtk,
         seleneopen_graphics,
-        seleneopen_gl_helper,
         seleneopen_model_loader,
         seleneopen_cube,
-        seleneopen_runner,
-        seleneopen_json,
         seleneopen_AudioSystem,
+        seleneopen_gl_helper,
         NULL
 };
 
